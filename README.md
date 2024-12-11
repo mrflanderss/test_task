@@ -12,7 +12,7 @@ We've also updated the User model. Now, the response to the [GET api/external/us
 
 ## Introduction
 
-The Subscription Plan API provides a way for users to expand their limits in the System. Subscription plans are connected with a specific user types. When a user purchases a subscription, we change their type on our side.
+The Subscription Plan API provides a way for users to manage their limits in the System. Subscription plans are connected with specific user types. When a user purchases a subscription, we change their type on our side.
 
 With the Subscription Plan API, providers can manage subscription plans of their users: 
 
@@ -29,7 +29,7 @@ Now, users in the System have predefined types with varying limits. Below are th
 |Type name     |Specifics and limits                       |Possible changes                         |
 |----------------|-------------------------------|-----------------------------|
 |`signing`           |Service type. Assigned while the subscription plan is being processed. The System doesn't return this status to partners via the API.|`company`, `advanced`             |
-|`guest`           |KYC not completed. Sessions are limited to 20 minutes, with up to 5 operations per day and 20 per week.|`basic`            |
+|`guest`           |KYC not completed. Sessions are limited to 20 minutes, with up to 5 operations per 24 hours and 20 in 7 days.|`basic`            |
 |`basic`           |KYC completed. Up to 20 operations per 24 hours and no more than 50 in 7 days.|`advanced`, `guest`            |`advanced`, `guest`
 |`company`         |No limits|`advanced`|
 |`advanced`        |No limits|`basic`, `company`|
@@ -44,7 +44,7 @@ Some text here
 
 ### Purchase a subscription plan
 
-To allow a user to pay for a subscription plan, follow these steps:
+To allow a user to pay for a subscription plan, the following process applies:
 
 Step 1.  **User requests available plans:**
 
@@ -52,11 +52,11 @@ The user sends a request to the provider asking for the available subscription p
 
 Step 2.  **Provider retrieves plans from the system:**
 
-The provider sends a GET request to the System's API endpoint (api/external/user) to fetch the list of available plans.
+The provider sends a GET request to the System's API endpoint (api/external/user) to fetch a list of available plans.
 
 Step 3.  **System responds with available plans:**
 
-The system returns a list of available plans to the provider.
+The system returns the list of available plans to the provider.
 
 Step 4.  **Provider shows the plans to the user:**
 
@@ -70,7 +70,7 @@ Step 6.  **Provider submits the purchase to the system:**
 
 The provider sends a POST request to the system's API endpoint (api/partner/buy) to initiate the purchase.
 
-Step 7.  **System updates the user's status to signing:**
+Step 7.  **System updates the user's status:**
 
 The system temporarily changes the user's status to `signing`.
 
@@ -80,17 +80,17 @@ The system provides the user with a payment link to complete the transaction.
 
 Step 9.  **Payment outcome:**
 
-•  **If the payment is approved:**
+• Option A.  **If the payment is approved:**
 
 The system updates the user's status to the new, upgraded status.
 
-•  **If the payment is rejected:**
+• Option B. **If the payment is rejected:**
 
-The system reverts the user's status to their previous state.
+The system reverts the user's status to the previous state.
 
 Step 10.  **System sends a callback to the provider:**
 
-The system sends the updated user object, including the new status, back to the provider.
+The system sends the updated user object, including the current status, back to the provider.
 
 Step 11.  **Provider informs the user:**
 
@@ -100,21 +100,21 @@ The provider notifies the user about their current subscription plan and status.
 
 ```mermaid
 sequenceDiagram
-User -> Provider: Ask  for available plans
+User -> Provider: Ask for available plans
 Provider -> System: GET api/external/user
-System --> Provider: Return  list  of available plans
+System --> Provider: Return list of available plans
 Provider --> User: Show available plans
 User -> Provider: Buy subscription plan
 Provider -> System: POST api/partner/buy
 System -> System: Change user status to signing
 System --> User: Redirect to payment page
 alt Payment approved
-System -> System: Change user status to a better one
+System -> System: Change user status to a upgraded one
 else  Payment rejected
 System -> System: Return previous status of the user
 end
 System --> Provider: Send callback with user object
-Provider --> User: Inform the user about their current plan
+Provider --> User: Inform user about their current plan
 ```
 
 ## Base URL
@@ -127,9 +127,10 @@ Provider --> User: Inform the user about their current plan
 
 Authentication depends on the request type:
 
-* There is no authentication for **GET** requests. Make sure you send requests using our VPN.
+* Authentication doesn't apply for **GET** requests. Make sure you send requests using the System's VPN.
 
-* Use [HTTP Basic auth](https://en.wikipedia.org/wiki/Basic_access_authentication) for **POST** requests. Ask your manager to obtain username and password. Specify the obtained credentials in the *Authorization* parameter of the request header.
+* Use [HTTP Basic auth](https://en.wikipedia.org/wiki/Basic_access_authentication) for **POST** requests. Ask your technical lead to obtain username and password. Specify the obtained credentials in the *Authorization* parameter of the request header.
+
     ```curl
     Authorization: Basic YXBkdXJlcjphcGlrbC9k 
     ```
