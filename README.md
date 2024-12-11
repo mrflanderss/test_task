@@ -3,9 +3,9 @@
 
 We present to you subscription plans. By purchasing them your clients will be able to manage their limits within our system.
 
-You can offer your users both predefined plans and your own, which you can create and customize using the [Subscription Plan API](#).
+You can offer your users both predefined plans and your own, which you can create and customize using the [Subscription Plan API](https://app.swaggerhub.com/apis/ALEXEY0127/subscription-plan_api/1.0.0).
 
-We've also updated the User model. Now, the response to the [GET api/external/user](#) request includes a new *sub_status* parameter. This parameter provides information about the subscription status.
+We've also updated the User model. Now, the response to the [GET api/external/user](https://app.swaggerhub.com/apis/ALEXEY0127/subscription-plan_api/1.0.0) request includes a new *sub_status* parameter. This parameter provides information about the subscription status.
 
 
 # Subscription Plan API (task #1)
@@ -100,7 +100,6 @@ The provider notifies the user about their current subscription plan and status.
 
 ```mermaid
 sequenceDiagram
-
 User -> Provider: Ask  for available plans
 Provider -> System: GET api/external/user
 System --> Provider: Return  list  of available plans
@@ -109,11 +108,14 @@ User -> Provider: Buy subscription plan
 Provider -> System: POST api/partner/buy
 System -> System: Change user status to signing
 System --> User: Redirect to payment page
+alt Payment approved
 System -> System: Change user status to a better one
+else  Payment rejected
+System -> System: Return previous status of the user
+end
 System --> Provider: Send callback with user object
 Provider --> User: Inform the user about their current plan
 ```
-
 
 ## Base URL
 
