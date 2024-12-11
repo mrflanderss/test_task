@@ -1,0 +1,229 @@
+openapi: 3.0.3
+info:
+  title: Subscription Plan API
+  description: This API reference allows partners to access their clients' data and manage subscription plans (user types).
+  version: 1.0.0
+servers:
+  - url: https://system.com/v1
+    description: Production server
+  - url: https://test.system.com/v1
+    description: Test server
+paths:
+  /api/external/user:
+    get:
+      summary: Retrieve user data
+      description: Retrieves a list of details for a specific user. This endpoint doesn't require authentication.
+      parameters:
+        - name: user_id
+          in: query
+          description: Unique user identifier on the System's side.
+          required: true
+          schema:
+            type: string
+            minLength: 7
+            maxLength: 7
+            example: "3453255"
+        - name: from
+          in: query
+          description: Starting point for paginated data retrieval, specified as a timestamp in nanoseconds.
+          required: false
+          schema:
+            type: integer
+            example: "1672531200000000000"
+        - name: to
+          in: query
+          description: Ending point for paginated data retrieval, specified as a timestamp in nanoseconds.
+          required: false
+          schema:
+            type: integer
+            example: "1672561200000000000"
+        - name: limit
+          in: query
+          description: Number of records returned by the query.
+          required: false
+          schema:
+            type: integer
+            default: 1000
+            minimum: 10
+            maximum: 1000
+            example: 200
+        - name: provider_id
+          in: query
+          description: Unique identifier of the partner a user bound to.
+          required: false
+          schema:
+            type: integer
+            minLength: 4
+            maxLength: 4
+            example: 2323
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user_id:
+                      type: string
+                      description: Unique user identifier on the System's side.
+                      example: "3453255"
+                    provider_id:
+                      type: string
+                      description: Unique identifier of the partner a user is bound to.
+                      example: "2323"
+                    status:
+                      type: string
+                      description: > 
+                      
+                        User service state. Possible values: 
+                        
+                        - `active`: User has access to the System.
+                        
+                        - `inactive`: User doesn't have access to the System.
+                        
+                        - `idle`: User exceeded their limits. They need to wait until their limits are reset.
+                      enum: [active, inactive, idle]
+                      example: "active"
+                    sub_status:
+                      type: string
+                      description: > 
+                      
+                        Subscription state. Possible values: 
+                        
+                        - `signed`: User has purchased the subscription plan.
+                        
+                        - `ussigned`: User doesn't have an active subscription plan.
+                        
+                        - `absent`: User has been absent from the System longer than the allowed duration.
+                      enum: [signed, unsigned, absent]
+                      example: "signed"
+                    type:
+                      type: string
+                      description:  >
+                      
+                        User type.  Possible values:
+                        
+                        - `basic`: KYC completed.
+                        
+                        - `guest`: KYC not completed.
+                        
+                        - `company`: Type with no limits.
+                        
+                        - `advanced`: Type with no limits.
+                        
+                        - `admin`: Type for System administrators.
+                        
+                        [Learn more about users' types](#)
+                      enum: [basic, guest, company, advanced, admin]
+                      example: "advanced"
+                    zone:
+                      type: string
+                      description: Region of residence in [ISO 3166 Alpha-2](https://www.iban.com/country-codes) code.
+                      pattern: "^[a-z]{2}$"
+                      example: "us"
+        '400':
+          description: Bad Request. In progress
+        '500':
+          description: Internal Server Error. In progress
+  /api/partner:
+    post:
+      summary: In progress
+      description: In progress.
+      security:
+        - basicAuth: []
+      parameters:
+        - name: provider_id
+          in: query
+          description: Unique identifier of the partner a user bound to.
+          required: false
+          schema:
+            type: string
+            minLength: 4
+            maxLength: 4
+            example: '2323'
+        - name: status
+          in: query
+          description: > 
+            User service state. Possible values: 
+            
+            - `active`: User has access to the System.
+                        
+            - `inactive`: User doesn't have access to the System.
+                        
+            - `idle`: User exceeded their limits. They need to wait until their limits are reset.
+
+          required: false
+          schema:
+            type: string
+            example: 0
+      requestBody:
+        description: Item details to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider_id:
+                  type: string
+                  description: Unique identifier of the partner a user bound to.
+                  example: "2323"
+                status:
+                  type: string
+                  description: > 
+                  
+                    User service state. Possible values: 
+                    
+                    - `active`: User has access to the System.
+                        
+                    - `inactive`: User doesn't have access to the System.
+                        
+                    - `idle`: User exceeded their limits. They need to wait until their limits are reset.
+                  enum: [active, inactive, idle]
+                  example: "active"
+              required:
+                - provider_id
+      responses:
+        '201':
+          description: In progress
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider_id:
+                    type: string
+                    example: "2323"
+                  status:
+                    type: string
+                    description: > 
+                      User service state. Possible values:
+                      
+                      - `active`: User has access to the System.
+                        
+                      - `inactive`: User doesn't have access to the System.
+                        
+                      - `idle`: User exceeded their limits. They need to wait until their limits are reset.
+                      
+                    enum: [active, inactive, idle]
+                    example: "active"
+        '400':
+          description: Invalid input. In progress
+        '500':
+          description: Internal Server Error. In progress
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid input"
